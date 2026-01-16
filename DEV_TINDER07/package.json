@@ -1,0 +1,19 @@
+{
+  "name": "dev_tinder07",
+  "version": "1.0.0",
+  "description": "neww journey!!",
+  "main": "one.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "js",
+    "node",
+    "express"
+  ],
+  "author": "Saroj Kandel",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
