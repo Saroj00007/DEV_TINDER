@@ -1,51 +1,139 @@
+
+
 const express = require("express");
 const { newbe_auth, admin_auth } = require("../middleware/auth");
+const connectdb = require("../config/connectdb");
+
+const User = require("../SRC/models/user");
 
 const app = express();
 
-// ani aarko error handling ko kura always better to use try catch / otherwise you can also use err argument at last
+app.use(express.json());
 
-// request handler !!!
-app.get("/newbe", newbe_auth);
+app.get("/", (req, res) => {
+  res.send("hey this is the get request ");
+});
 
-app.use("/admin", admin_auth);
-
-app.use("/admin", (req, res, next) => {
-  // res.send("hello from the admin pannel")
+app.post("/signup", async (req, res) => {
+  const nayaUser = new User(req.body);
+  console.log(req.body);
 
   try {
-    console.log("hello from 2nd request handler!!!!");
+    await nayaUser.save();
 
-    throw new Error("this is the new error");
-
-    res.send("this is the admin page only admin can ascess it");
+    res.send("user had been updated successfully");
   } catch (error) {
-
-    res.send("Error has been resolved in try_catch block")
+    res.send("error occured during data inserting "+error.msg);
   }
 });
 
-app.get("/newbe", (req, res, next) => {
-  console.log("hello from 1s handler");
-  res.send("hello this is newbe page");
-});
+app.get("/user", async (req, res) => {
+  const req_user = req.body.Fname;
 
-app.get("/user/:userid/:name/:age", (req, res) => {
-  console.log(req.query);
-  console.log(req.params);
-  res.send({ name: "saroj", age: 20 });
-});
-app.get("/*fly $/", (req, res) => {
-  console.log(req.query);
-  console.log(req.params);
-  res.send({ name: "saroj", age: 20 });
-});
-app.use("/", (err, req, res, next) => {
-  if (err) {
-    res.status(401).send("error had been occured");
+  try {
+    const usergained = await User.find({ Fname: req_user });
+
+    if (usergained.length === 0) {
+      res.send("user not found");
+    } else {
+      console.log("hello from /user");
+      // console.log(usergained)
+
+      res.send(usergained);
+    }
+  } catch (error) {
+    res.status(404).send("something went wrong");
   }
+
 });
 
-app.listen(3000, () => {
-  console.log("this is to confirm that server is waiting in 3000 port");
+app.get('/feed' , async(req, res)=>{
+
+  try {
+   user_gained = await User.find({}) //db ko sabai kam haru async await ma garne
+   if(user_gained.length != 0 ){ 
+
+    console.log("hello from the feed center");
+    res.send(user_gained);
+   }else{
+    res.status(404).send("USER NOT FOUND!!");
+   }
+  
+  } catch (error) {
+    res.status(404).send("SOMETHING WENT WRONG");
+  }
+
+
+})
+
+// we are now gonna delete the information
+
+app.get('/delete' , async( req , res )=>{
+     
+  const userid_gained = req.body.userid;
+ 
+  try {
+
+  await User.findByIdAndDelete(userid_gained)
+  res.send("user had been deleted successfully")
+    
+  } catch (error) {
+    res.status(404).send("something went wrong!!")
+  }
+
 });
+
+
+
+
+app.put('/update' , async(req , res)=>{
+   
+  const data = req.body;
+  const user_id = req.body.user_id;
+  console.log(user_id);
+
+  try {
+      
+      const UPDATE_ALLOWED = ["user_id" , "Fname" , "Lname" , "age" , "password" , "photo_url", "skills" ]
+    
+      const IS_ALLOWED =  Object.keys(data).every((k)=>{
+      return UPDATE_ALLOWED.includes(k)
+      })
+
+      if(!IS_ALLOWED){
+        throw new Error(" USER UPDATE DENIED")
+      }
+
+      if(data?.skills.length > 3){
+        throw new Error("MAXIMUM LENGTH CROSSED!")
+      }
+
+    
+  } catch (err) {
+     res.status(404).send("unable to update user "+err.message)
+  }
+
+
+  try {
+
+  const manche = await User.findByIdAndUpdate(user_id , data , {returnDocument:"after"});
+  console.log("user updated successfully!!");
+  res.send(manche)
+  
+  } catch (error) {
+    res.status(404).send("SOMETHING WENT WRONG!!!");
+  } 
+
+})
+
+connectdb()
+  .then(() => {
+    console.log("helo the db is connected");
+
+    app.listen(3000, () => {
+      console.log("this is to confirm that server is waiting in 3000 port");
+    });
+  })
+  .catch(() => {
+    console.log("hey there is some error");
+  });
