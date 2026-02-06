@@ -1,34 +1,34 @@
-const newbe_auth = (req , res , next)=>{
-   console.log("we are in newbe page")
-    // we are writing the auth code 
+const User = require("../SRC/models/user");
+const jwt = require("jsonwebtoken");
 
-    const Tokens = "abc"
-    const had_ascess = Tokens === "abc"
+const userAuth = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
 
-    if(had_ascess){
-          next()
-    }else{
-        res.status(401).send("something went wrong")
+    if (!token) {
+      throw new Error("INVALID TOKEN !!");
     }
 
-}
+    const DecodedObj = await jwt.verify(token, "S@roj123");
+  
+    
+    if (!DecodedObj) {
+      throw new Error("UNABLE TO FIND THE DecodedObj!! ");
+    }
+    const { _id } = DecodedObj;
 
-const admin_auth = (req , res , next)=>{
-   console.log("we are in admin page")
-    // we are writing the auth code 
+    const user = await User.findById(_id);
 
-    const Tokens = "abc"
-    const had_ascess = Tokens === "abc"
-
-    if(had_ascess){
-           next()
-    }else{
-        res.status(401).send("something went wrong")
+    if (!user) {
+      throw new Error("UNABLE TO FIND THE USER!! ");
     }
 
-}
+    req.user = user;
 
-module.exports = {
-newbe_auth,
-admin_auth
-}
+    next()
+  } catch(error) {
+    res.status(400).send("ERROR OCCURED : " + error.message);
+  }
+};
+
+module.exports = userAuth;

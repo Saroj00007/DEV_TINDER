@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const validator = require("validator")
 // inputing the restrecting into the database schema
 const userSchema = mongoose.Schema({
   Fname: {
@@ -31,6 +31,14 @@ const userSchema = mongoose.Schema({
     required: true,
     trim: true,
     unique: true,
+    // value vaneko chai user le input garna khojeko wala video   
+    validate(value){
+    console.log(value)
+      const isVALIDATE = validator.isEmail(value)
+      if(!isVALIDATE){
+          throw new Error(`Email is unsatisfied : ${value}`)
+      }
+    }
   },
   password: {
     type: String,
@@ -45,6 +53,7 @@ const userSchema = mongoose.Schema({
 } , {
   timestamps:true
 });
+
 
 // now creating the model for the api so that we can move forward
 
