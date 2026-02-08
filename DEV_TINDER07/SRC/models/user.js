@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
-const validator = require("validator")
+const validator = require("validator");
+
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+
 // inputing the restrecting into the database schema
 const userSchema = mongoose.Schema({
   Fname: {
@@ -54,6 +59,24 @@ const userSchema = mongoose.Schema({
   timestamps:true
 });
 
+
+userSchema.methods.getJWT =  function(){
+    const user = this;
+
+    const token = jwt.sign({ _id: user._id }, "S@roj123", {
+            expiresIn: "10m",
+          });
+
+    return token;
+};
+
+userSchema.methods.isPasswordValid = async function(Password_inputBy_user){
+   const user = this;
+
+    const password_match = await bcrypt.compare(Password_inputBy_user, user.password);
+
+    return password_match;
+}
 
 // now creating the model for the api so that we can move forward
 
