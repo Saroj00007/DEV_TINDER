@@ -15,4 +15,29 @@ const validate = (req)=>{
     }
 }
 
-module.exports = validate
+const validateProfileEdit = (req)=>{
+  
+  const user = req.body;
+    const allowed_field = [
+    "user_id",
+      "Fname",
+      "Lname",
+      "age",
+      "photo_url",
+      "skills",
+  ];
+
+
+  const isAllowed = Object.keys(req.body).every((field)=>{
+    return allowed_field.includes(field)
+  });
+
+//   if(!isAllowed){
+//        throw new Error("UNABLE TO EDIT YOUR DATA! YOU CANNOT ASCESS OR EDIT THAT DATA!!")
+//   }
+
+return isAllowed;
+
+}
+
+module.exports = {validate , validateProfileEdit}

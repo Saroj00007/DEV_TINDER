@@ -15,9 +15,17 @@ const userAuth = require('../SRC/middleware/auth');
 
 const authRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
-const requrestRouter = require('./routes/request')
+const requrestRouter = require('./routes/request');
+const userRouter = require("./routes/user");
+
+const cors = require('cors')
 
 const app = express();
+
+app.use(cors({
+  origin: "http://localhost:5173/",
+  credentials : true
+}))
 
 app.use(express.json());
 app.use(cookiesparser());
@@ -28,6 +36,7 @@ app.use(cookiesparser());
 app.use('/' , authRouter);
 app.use('/' , profileRouter);
 app.use('/' , requrestRouter);
+app.use('/' , userRouter);
 
 
 

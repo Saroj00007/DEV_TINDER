@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const validate = require("../utils/validate");
+const {validate} = require("../utils/validate");
 
 const authRouter = express.Router();
 
@@ -34,7 +34,7 @@ const authRouter = express.Router();
    try {
      await nayaUser.save();
  
-     res.send("user had been updated successfully");
+     res.send("user had been Registered  successfully");
    } catch (error) {
      res.send("error occured during data inserting " + error.message);
    }
@@ -57,8 +57,11 @@ const authRouter = express.Router();
        console.log("error");
        throw new Error("Unable to find user");
      }
+
+     console.log("pass : " + password)
  
-     const password_match =  user.isPasswordValid(password);
+     const password_match = await user.isPasswordValid(password);
+     console.log(password_match)
  
      if (password_match) {
        // firstly we send the cookie to the browser or something say client
@@ -68,10 +71,10 @@ const authRouter = express.Router();
        const token = user.getJWT();
    
        res.cookie("token", token, {
-         expires: new Date(Date.now() + 60* 60 * 1000), // 1 day
+         expires: new Date(Date.now() + 24* 60* 60 * 1000), // 1 day
        });
  
-       res.send("loggedIn successfully");
+       res.send(user);
      } else {
        throw new Error("Incorrect password!!");
      }
@@ -80,7 +83,15 @@ const authRouter = express.Router();
    }
  });
  
+ // now we are going to make logout api 
 
+ authRouter.post('/logout' , async(req, res)=>{
+    
+  res.cookie('token' , null , {
+    expires: new Date(Date.now())
+  })
 
-
+   res.send("LOG OUT SUCCESSFULLY!");
+ });
+ 
 module.exports = authRouter

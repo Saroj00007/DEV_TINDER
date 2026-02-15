@@ -36,6 +36,7 @@ const userSchema = mongoose.Schema({
     required: true,
     trim: true,
     unique: true,
+    index:true ,
     // value vaneko chai user le input garna khojeko wala video   
     validate(value){
     console.log(value)
@@ -71,9 +72,10 @@ userSchema.methods.getJWT =  function(){
 };
 
 userSchema.methods.isPasswordValid = async function(Password_inputBy_user){
-   const user = this;
+    const user = this;
 
     const password_match = await bcrypt.compare(Password_inputBy_user, user.password);
+    console.log(password_match)
 
     return password_match;
 }
